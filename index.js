@@ -116,10 +116,12 @@ app.post("/enviar", async (req, res) => {
       return res.status(500).send("WhatsApp no está listo");
     }
 
+    // limpiar número
     let numero = telefono.replace(/\D/g, "");
 
-    if (numero.startsWith("549")) {
-      numero = "54" + numero.slice(3);
+    // asegurar formato Argentina 549XXXXXXXXXX
+    if (!numero.startsWith("549")) {
+      numero = "549" + numero;
     }
 
     const chatId = numero + "@c.us";

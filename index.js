@@ -10,6 +10,7 @@ app.use(express.json());
 
 let qrCode = "";
 let estado = "desconectado";
+let clienteListo = false;
 
 const client = new Client({
   authStrategy: new LocalAuth(),
@@ -29,8 +30,8 @@ client.on("qr", async (qr) => {
   console.log("📱 Nuevo QR generado");
 
   qrCode = await qrcode.toDataURL(qr);
-
   estado = "qr";
+  clienteListo = false;
 
 });
 
@@ -39,6 +40,7 @@ client.on("ready", () => {
   console.log("✅ WhatsApp conectado");
 
   estado = "conectado";
+  clienteListo = true;
 
 });
 
@@ -47,6 +49,7 @@ client.on("disconnected", () => {
   console.log("❌ WhatsApp desconectado");
 
   estado = "desconectado";
+  clienteListo = false;
 
 });
 
@@ -76,32 +79,6 @@ app.get("/estado", (req, res) => {
 });
 
 
-// RECONEXIÓN MANUAL
-app.get("/reconectar", async (req, res) => {
-
-  try {
-
-    console.log("🔄 Reconectando WhatsApp...");
-
-    await client.destroy();
-
-    estado = "reconectando";
-
-    await client.initialize();
-
-    res.send("Reconectando WhatsApp");
-
-  } catch (error) {
-
-    console.log(error);
-
-    res.status(500).send("Error reconectando");
-
-  }
-
-});
-
-
 // ENVIAR MENSAJE
 app.post("/enviar", async (req, res) => {
 
@@ -109,17 +86,15 @@ app.post("/enviar", async (req, res) => {
 
   try {
 
-    console.log("📨 Enviando mensaje a:", telefono);
-
-    if (!client.info) {
-      console.log("⚠️ WhatsApp todavía no está listo");
-      return res.status(500).send("WhatsApp no está listo");
+    if (!clienteListo) {
+      console.log("⚠️ WhatsApp todavía iniciando...");
+      return res.status(500).send("WhatsApp todavía iniciando");
     }
 
-    // limpiar número
+    console.log("📨 Enviando mensaje a:", telefono);
+
     let numero = telefono.replace(/\D/g, "");
 
-    // asegurar formato Argentina 549XXXXXXXXXX
     if (!numero.startsWith("549")) {
       numero = "549" + numero;
     }

@@ -16,11 +16,16 @@ const client = new Client({
   authStrategy: new LocalAuth(),
   puppeteer: {
     headless: true,
+    protocolTimeout: 120000,
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage",
-      "--disable-gpu"
+      "--disable-gpu",
+      "--disable-accelerated-2d-canvas",
+      "--no-first-run",
+      "--no-zygote",
+      "--single-process"
     ]
   }
 });
@@ -87,8 +92,10 @@ app.post("/enviar", async (req, res) => {
   try {
 
     if (!clienteListo) {
+
       console.log("⚠️ WhatsApp todavía iniciando...");
       return res.status(500).send("WhatsApp todavía iniciando");
+
     }
 
     console.log("📨 Enviando mensaje a:", telefono);
@@ -105,6 +112,8 @@ app.post("/enviar", async (req, res) => {
 
     await client.sendMessage(chatId, mensaje);
 
+    console.log("✅ Mensaje enviado");
+
     res.send("Mensaje enviado");
 
   } catch (error) {
@@ -112,6 +121,29 @@ app.post("/enviar", async (req, res) => {
     console.error("❌ Error enviando mensaje:", error);
 
     res.status(500).send("Error enviando mensaje");
+
+  }
+
+});
+
+
+// RECONEXION
+app.get("/reconectar", async (req, res) => {
+
+  try {
+
+    console.log("🔄 Reiniciando WhatsApp...");
+
+    await client.destroy();
+    await client.initialize();
+
+    res.send("Reiniciando WhatsApp");
+
+  } catch (error) {
+
+    console.error("❌ Error reiniciando:", error);
+
+    res.status(500).send("Error reiniciando");
 
   }
 

@@ -17,6 +17,7 @@ const client = new Client({
   puppeteer: {
     headless: true,
     protocolTimeout: 120000,
+    timeout: 120000,
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
@@ -27,6 +28,9 @@ const client = new Client({
       "--no-zygote",
       "--single-process"
     ]
+  },
+  webVersionCache: {
+    type: "none"
   }
 });
 
@@ -58,7 +62,11 @@ client.on("disconnected", () => {
 
 });
 
-client.initialize();
+
+// Inicializar con delay para evitar crash en Railway
+setTimeout(() => {
+  client.initialize();
+}, 5000);
 
 
 // VER QR
@@ -92,10 +100,8 @@ app.post("/enviar", async (req, res) => {
   try {
 
     if (!clienteListo) {
-
       console.log("⚠️ WhatsApp todavía iniciando...");
       return res.status(500).send("WhatsApp todavía iniciando");
-
     }
 
     console.log("📨 Enviando mensaje a:", telefono);
@@ -127,7 +133,7 @@ app.post("/enviar", async (req, res) => {
 });
 
 
-// RECONEXION
+// RECONEXIÓN
 app.get("/reconectar", async (req, res) => {
 
   try {
@@ -135,7 +141,10 @@ app.get("/reconectar", async (req, res) => {
     console.log("🔄 Reiniciando WhatsApp...");
 
     await client.destroy();
-    await client.initialize();
+
+    setTimeout(() => {
+      client.initialize();
+    }, 5000);
 
     res.send("Reiniciando WhatsApp");
 

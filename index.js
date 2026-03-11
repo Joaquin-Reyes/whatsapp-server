@@ -111,7 +111,15 @@ app.post("/enviar", async (req, res) => {
 
     console.log("📨 Enviando mensaje a:", telefono);
 
-    await client.sendMessage(telefono + "@c.us", mensaje);
+    let numero = telefono.replace(/\D/g, "");
+
+if (numero.startsWith("549")) {
+  numero = "54" + numero.slice(3);
+}
+
+const chatId = numero + "@c.us";
+
+await client.sendMessage(chatId, mensaje);
 
     res.send("Mensaje enviado");
 

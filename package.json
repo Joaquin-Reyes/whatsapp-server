@@ -4,6 +4,9 @@
   "description": "Servidor WhatsApp Beauty Eyes Pro",
   "main": "index.js",
   "type": "commonjs",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "start": "node index.js"
   },

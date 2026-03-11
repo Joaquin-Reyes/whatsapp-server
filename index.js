@@ -111,15 +111,22 @@ app.post("/enviar", async (req, res) => {
 
     console.log("📨 Enviando mensaje a:", telefono);
 
+    if (!client.info) {
+      console.log("⚠️ WhatsApp todavía no está listo");
+      return res.status(500).send("WhatsApp no está listo");
+    }
+
     let numero = telefono.replace(/\D/g, "");
 
-if (numero.startsWith("549")) {
-  numero = "54" + numero.slice(3);
-}
+    if (numero.startsWith("549")) {
+      numero = "54" + numero.slice(3);
+    }
 
-const chatId = numero + "@c.us";
+    const chatId = numero + "@c.us";
 
-await client.sendMessage(chatId, mensaje);
+    console.log("📲 Chat ID:", chatId);
+
+    await client.sendMessage(chatId, mensaje);
 
     res.send("Mensaje enviado");
 

@@ -1,7 +1,6 @@
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
-
 const admin = require("firebase-admin");
 const cron = require("node-cron");
 
@@ -13,22 +12,16 @@ app.use(express.json());
 const TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 
-
 // ==============================
-// FIREBASE ADMIN (Railway)
+// FIREBASE ADMIN
 // ==============================
 
-console.log("ENV FIREBASE_PROJECT_ID:", process.env.FIREBASE_PROJECT_ID);
-console.log("ENV FIREBASE_CLIENT_EMAIL:", process.env.FIREBASE_CLIENT_EMAIL);
-console.log("ENV FIREBASE_PRIVATE_KEY:", process.env.FIREBASE_PRIVATE_KEY ? "EXISTS" : "UNDEFINED");
+if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
+  console.error("❌ FIREBASE_SERVICE_ACCOUNT no está configurado");
+  process.exit(1);
+}
 
-const serviceAccount = {
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-  privateKey: process.env.FIREBASE_PRIVATE_KEY
-  ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n")
-  : ""
-};
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
@@ -36,13 +29,13 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
+console.log("🔥 Firebase conectado");
 
 // ==============================
-// FUNCIÓN REUTILIZABLE WHATSAPP
+// FUNCIÓN WHATSAPP
 // ==============================
 
 async function enviarWhatsApp(telefono) {
-
   try {
 
     let numero = telefono.replace(/\D/g, "");
@@ -77,19 +70,15 @@ async function enviarWhatsApp(telefono) {
     console.log("✅ Mensaje enviado:", response.data);
 
   } catch (error) {
-
     console.error(
       "❌ Error enviando WhatsApp:",
       error.response?.data || error.message
     );
-
   }
-
 }
 
-
 // ==============================
-// ENDPOINT ENVÍO MANUAL
+// ENDPOINT MANUAL
 // ==============================
 
 app.post("/enviar", async (req, res) => {
@@ -97,23 +86,17 @@ app.post("/enviar", async (req, res) => {
   const { telefono } = req.body;
 
   try {
-
     await enviarWhatsApp(telefono);
-
     res.send("Mensaje enviado");
-
   } catch (error) {
-
     console.error(error);
     res.status(500).send("Error enviando WhatsApp");
-
   }
 
 });
 
-
 // ==============================
-// REVISAR TURNOS AUTOMÁTICOS
+// REVISAR TURNOS
 // ==============================
 
 async function revisarTurnos() {
@@ -162,33 +145,25 @@ async function revisarTurnos() {
     }
 
   } catch (error) {
-
     console.error("❌ Error revisando turnos:", error);
-
   }
 
 }
 
-
 // ==============================
-// CRON JOB
+// CRON
 // ==============================
 
 cron.schedule("*/1 * * * *", () => {
-
   revisarTurnos();
-
 });
 
-
 // ==============================
-// SERVIDOR
+// SERVER
 // ==============================
 
 const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => {
-
-  console.log("🚀 Servidor WhatsApp iniciado en puerto", PORT);
-
+  console.log("🚀 Servidor iniciado en puerto", PORT);
 });

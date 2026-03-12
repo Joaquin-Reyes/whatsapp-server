@@ -117,19 +117,27 @@ async function revisarTurnos() {
 
     const turno = doc.data();
 
-    const createdAt = turno.createdAt.toDate();
+    if (!turno.telefono || !turno.cliente || !turno.createdAt) {
+      continue;
+    }
+
+    const createdAt = turno.createdAt.toDate
+      ? turno.createdAt.toDate()
+      : new Date(turno.createdAt);
+
     const turnoMs = createdAt.getTime();
 
     const diff = ahoraMs - turnoMs;
     const minutos = diff / (1000 * 60);
 
-    // =====================
-    // RECORDATORIO 24 HORAS
-    // =====================
+    console.log("Turno:", turno.cliente);
+    console.log("Minutos desde creación:", minutos);
 
-    if (minutos >= 2 && minutos < 3 && !turno.recordatorio24h) {
+    // RECORDATORIO PRUEBA A LOS 2 MINUTOS
 
-      console.log("📩 Recordatorio 24h:", turno.cliente);
+    if (minutos >= 2 && !turno.recordatorio24h) {
+
+      console.log("📩 Enviando recordatorio prueba:", turno.cliente);
 
       await enviarWhatsApp(turno.telefono);
 
@@ -150,7 +158,6 @@ async function revisarTurnos() {
 
 cron.schedule("*/1 * * * *", () => {
 
-  console.log("⏰ Revisando turnos...");
   revisarTurnos();
 
 });

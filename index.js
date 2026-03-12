@@ -23,10 +23,13 @@ app.post("/enviar", async (req, res) => {
       {
         messaging_product: "whatsapp",
         to: telefono,
-        type: "text",
-        text: {
-          body: mensaje
-        }
+        type: "template",
+template: {
+  name: "hello_world",
+  language: {
+    code: "en_US"
+  }
+}
       },
       {
         headers: {

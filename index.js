@@ -18,14 +18,11 @@ const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 // FIREBASE ADMIN (Railway)
 // ==============================
 
-if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
-  console.error("❌ FIREBASE_SERVICE_ACCOUNT no está configurado en Railway");
-  process.exit(1);
-}
-
-const serviceAccount = JSON.parse(
-  process.env.FIREBASE_SERVICE_ACCOUNT.replace(/\\n/g, "\n")
-);
+const serviceAccount = {
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+  privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n")
+};
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
@@ -143,10 +140,6 @@ async function revisarTurnos() {
 
       console.log("Turno:", turno.cliente);
       console.log("Minutos desde creación:", minutos);
-
-      // =========================
-      // RECORDATORIO PRUEBA
-      // =========================
 
       if (minutos >= 2 && !turno.recordatorio24h) {
 

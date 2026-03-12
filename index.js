@@ -18,7 +18,14 @@ const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 // FIREBASE ADMIN (Railway)
 // ==============================
 
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
+  console.error("❌ FIREBASE_SERVICE_ACCOUNT no está configurado en Railway");
+  process.exit(1);
+}
+
+const serviceAccount = JSON.parse(
+  process.env.FIREBASE_SERVICE_ACCOUNT.replace(/\\n/g, "\n")
+);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)

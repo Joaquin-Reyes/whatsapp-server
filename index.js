@@ -39,13 +39,20 @@ console.log("🔥 Firebase conectado");
 // ==============================
 
 async function enviarWhatsApp(telefono) {
+
+  if (!TOKEN || !PHONE_NUMBER_ID) {
+    console.error("❌ Falta WHATSAPP_TOKEN o PHONE_NUMBER_ID");
+    return;
+  }
+
   try {
 
-    let numero = telefono.replace(/\D/g, "");
-
-    if (numero.startsWith("549")) {
-      numero = "54" + numero.substring(3);
+    if (!telefono) {
+      console.log("⚠️ Teléfono vacío");
+      return;
     }
+
+    let numero = telefono.toString().replace(/\D/g, "");
 
     console.log("📨 Enviando WhatsApp a:", numero);
 
@@ -73,10 +80,12 @@ async function enviarWhatsApp(telefono) {
     console.log("✅ Mensaje enviado:", response.data);
 
   } catch (error) {
+
     console.error(
       "❌ Error enviando WhatsApp:",
       error.response?.data || error.message
     );
+
   }
 }
 
@@ -89,11 +98,16 @@ app.post("/enviar", async (req, res) => {
   const { telefono } = req.body;
 
   try {
+
     await enviarWhatsApp(telefono);
+
     res.send("Mensaje enviado");
+
   } catch (error) {
+
     console.error(error);
     res.status(500).send("Error enviando WhatsApp");
+
   }
 
 });
@@ -148,7 +162,9 @@ async function revisarTurnos() {
     }
 
   } catch (error) {
+
     console.error("❌ Error revisando turnos:", error);
+
   }
 
 }
@@ -158,7 +174,9 @@ async function revisarTurnos() {
 // ==============================
 
 cron.schedule("*/1 * * * *", () => {
+
   revisarTurnos();
+
 });
 
 // ==============================
@@ -168,5 +186,7 @@ cron.schedule("*/1 * * * *", () => {
 const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => {
+
   console.log("🚀 Servidor iniciado en puerto", PORT);
+
 });

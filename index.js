@@ -18,6 +18,10 @@ const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 // FIREBASE ADMIN (Railway)
 // ==============================
 
+console.log("ENV FIREBASE_PROJECT_ID:", process.env.FIREBASE_PROJECT_ID);
+console.log("ENV FIREBASE_CLIENT_EMAIL:", process.env.FIREBASE_CLIENT_EMAIL);
+console.log("ENV FIREBASE_PRIVATE_KEY:", process.env.FIREBASE_PRIVATE_KEY ? "EXISTS" : "UNDEFINED");
+
 const serviceAccount = {
   projectId: process.env.FIREBASE_PROJECT_ID,
   clientEmail: process.env.FIREBASE_CLIENT_EMAIL,

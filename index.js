@@ -18,11 +18,18 @@ app.post("/enviar", async (req, res) => {
 
     console.log("📨 Enviando WhatsApp a:", telefono);
 
+    let numero = telefono.replace(/\D/g, "");
+
+// quitar el 9 después del 54 si existe
+if (numero.startsWith("549")) {
+  numero = "54" + numero.substring(3);
+}
+
     await axios.post(
       `https://graph.facebook.com/v19.0/${PHONE_NUMBER_ID}/messages`,
       {
         messaging_product: "whatsapp",
-        to: telefono,
+        to: numero,
         type: "template",
 template: {
   name: "hello_world",

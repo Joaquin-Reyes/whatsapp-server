@@ -117,10 +117,10 @@ async function revisarTurnos() {
 
     const turno = doc.data();
 
-    const createdAt = new Date(turno.createdAt);
+    const createdAt = turno.createdAt.toDate();
     const turnoMs = createdAt.getTime();
 
-    const diff = turnoMs - ahoraMs;
+    const diff = ahoraMs - turnoMs;
     const minutos = diff / (1000 * 60);
 
     // =====================

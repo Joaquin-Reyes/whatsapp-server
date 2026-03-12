@@ -1,3 +1,6 @@
+console.log("ENV KEYS:", Object.keys(process.env));
+console.log("FIREBASE_SERVICE_ACCOUNT:", process.env.FIREBASE_SERVICE_ACCOUNT);
+
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");

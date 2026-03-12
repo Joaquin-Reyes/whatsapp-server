@@ -12,31 +12,31 @@ const PHONE_NUMBER_ID = "996052293598272";
 
 app.post("/enviar", async (req, res) => {
 
-  const { telefono, mensaje } = req.body;
+  const { telefono } = req.body;
 
   try {
 
-    console.log("📨 Enviando WhatsApp a:", telefono);
-
     let numero = telefono.replace(/\D/g, "");
 
-// quitar el 9 después del 54 si existe
-if (numero.startsWith("549")) {
-  numero = "54" + numero.substring(3);
-}
+    // SANDBOX WHATSAPP: quitar el 9 después del 54
+    if (numero.startsWith("549")) {
+      numero = "54" + numero.substring(3);
+    }
 
-    await axios.post(
-      `https://graph.facebook.com/v19.0/${PHONE_NUMBER_ID}/messages`,
+    console.log("📨 Enviando WhatsApp a:", numero);
+
+    const response = await axios.post(
+      `https://graph.facebook.com/v22.0/${PHONE_NUMBER_ID}/messages`,
       {
         messaging_product: "whatsapp",
         to: numero,
         type: "template",
-template: {
-  name: "hello_world",
-  language: {
-    code: "en_US"
-  }
-}
+        template: {
+          name: "hello_world",
+          language: {
+            code: "en_US"
+          }
+        }
       },
       {
         headers: {
@@ -46,13 +46,14 @@ template: {
       }
     );
 
-    console.log("✅ Mensaje enviado");
+    console.log("✅ Mensaje enviado:", response.data);
 
     res.send("Mensaje enviado");
 
   } catch (error) {
 
-    console.error("❌ Error enviando mensaje:",
+    console.error(
+      "❌ Error enviando mensaje:",
       error.response?.data || error.message
     );
 

@@ -117,8 +117,8 @@ async function revisarTurnos() {
 
     const turno = doc.data();
 
-    const fechaHora = new Date(`${turno.fecha}T${turno.hora}`);
-    const turnoMs = fechaHora.getTime();
+    const createdAt = new Date(turno.createdAt);
+    const turnoMs = createdAt.getTime();
 
     const diff = turnoMs - ahoraMs;
     const minutos = diff / (1000 * 60);
@@ -127,7 +127,7 @@ async function revisarTurnos() {
     // RECORDATORIO 24 HORAS
     // =====================
 
-    if (minutos <= 5 && minutos > 4 && !turno.recordatorio24h) {
+    if (minutos >= 2 && minutos < 3 && !turno.recordatorio24h) {
 
       console.log("📩 Recordatorio 24h:", turno.cliente);
 
@@ -148,8 +148,9 @@ async function revisarTurnos() {
 // CRON JOB
 // ==============================
 
-cron.schedule("*/10 * * * *", () => {
+cron.schedule("*/1 * * * *", () => {
 
+  console.log("⏰ Revisando turnos...");
   revisarTurnos();
 
 });

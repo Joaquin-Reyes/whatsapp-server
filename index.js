@@ -6,7 +6,10 @@ const cron = require("node-cron");
 
 const app = express();
 
-// manejar preflight CORS primero
+// ==============================
+// CORS + PREFLIGHT
+// ==============================
+
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -22,8 +25,13 @@ app.use((req, res, next) => {
 app.use(cors());
 app.use(express.json());
 
+// ==============================
+// VARIABLES WHATSAPP
+// ==============================
+
 const TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
+
 // ==============================
 // FIREBASE ADMIN
 // ==============================
@@ -33,7 +41,14 @@ if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
   process.exit(1);
 }
 
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+let serviceAccount;
+
+try {
+  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+} catch (error) {
+  console.error("❌ Error leyendo FIREBASE_SERVICE_ACCOUNT:", error);
+  process.exit(1);
+}
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
@@ -100,6 +115,7 @@ async function enviarWhatsApp(telefono, mensaje) {
       error.response?.data || error.message
     );
 
+    throw error;
   }
 }
 
@@ -119,12 +135,19 @@ app.post("/enviar", async (req, res) => {
 
     await enviarWhatsApp(telefono, mensaje);
 
-    res.send("Mensaje enviado");
+    return res.json({
+      status: "ok",
+      message: "Mensaje enviado"
+    });
 
   } catch (error) {
 
-    console.error(error);
-    res.status(500).send("Error enviando WhatsApp");
+    console.error("❌ Error endpoint:", error);
+
+    return res.status(500).json({
+      status: "error",
+      message: "Error enviando WhatsApp"
+    });
 
   }
 
@@ -200,17 +223,11 @@ Te esperamos 💗`;
 // ==============================
 
 // cron.schedule("*/1 * * * *", async () => {
-
 //   try {
-
 //     await revisarTurnos();
-
 //   } catch (error) {
-
 //     console.error("Error en cron:", error);
-
 //   }
-
 // });
 
 // ==============================

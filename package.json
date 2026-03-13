@@ -16,5 +16,8 @@
     "express": "^4.18.2",
     "firebase-admin": "^13.7.0",
     "node-cron": "^4.2.1"
+  },
+  "overrides": {
+    "mime": "2.6.0"
   }
 }

@@ -182,9 +182,13 @@ Te esperamos 💗`;
 // CRON
 // ==============================
 
-cron.schedule("*/1 * * * *", () => {
+cron.schedule("*/1 * * * *", async () => {
 
-  revisarTurnos();
+  try {
+    await revisarTurnos();
+  } catch (e) {
+    console.error("Error en cron:", e);
+  }
 
 });
 

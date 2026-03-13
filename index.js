@@ -1,5 +1,3 @@
-console.log("🚀 Iniciando servidor...");
-
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
@@ -8,21 +6,8 @@ const cron = require("node-cron");
 
 const app = express();
 
-// ==============================
-// CORS
-// ==============================
-
-app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type"]
-}));
-
+app.use(cors());
 app.use(express.json());
-
-// ==============================
-// VARIABLES WHATSAPP
-// ==============================
 
 const TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
@@ -36,18 +21,7 @@ if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
   process.exit(1);
 }
 
-let serviceAccount;
-
-try {
-
-  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-
-} catch (error) {
-
-  console.error("❌ Error leyendo FIREBASE_SERVICE_ACCOUNT:", error);
-  process.exit(1);
-
-}
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
@@ -115,7 +89,6 @@ async function enviarWhatsApp(telefono, mensaje) {
     );
 
   }
-
 }
 
 // ==============================
@@ -146,7 +119,8 @@ app.post("/enviar", async (req, res) => {
 });
 
 // ==============================
-// REVISAR TURNOS
+// SISTEMA DE RECORDATORIOS
+// (DESACTIVADO TEMPORALMENTE)
 // ==============================
 
 async function revisarTurnos() {
@@ -207,26 +181,25 @@ Te esperamos 💗`;
     console.error("❌ Error revisando turnos:", error);
 
   }
-
 }
 
 // ==============================
-// CRON (cada 1 minuto)
+// CRON DESACTIVADO
 // ==============================
 
-cron.schedule("*/1 * * * *", async () => {
+// cron.schedule("*/1 * * * *", async () => {
 
-  try {
+//   try {
 
-    await revisarTurnos();
+//     await revisarTurnos();
 
-  } catch (error) {
+//   } catch (error) {
 
-    console.error("Error en cron:", error);
+//     console.error("Error en cron:", error);
 
-  }
+//   }
 
-});
+// });
 
 // ==============================
 // SERVER

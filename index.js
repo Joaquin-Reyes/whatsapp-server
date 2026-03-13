@@ -6,11 +6,7 @@ const cron = require("node-cron");
 
 const app = express();
 
-app.use(cors());
-
-app.use(express.json());
-
-// manejar preflight CORS manualmente
+// manejar preflight CORS primero
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -23,9 +19,11 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(cors());
+app.use(express.json());
+
 const TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
-
 // ==============================
 // FIREBASE ADMIN
 // ==============================

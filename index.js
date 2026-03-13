@@ -1,5 +1,4 @@
-console.log("ENV KEYS:", Object.keys(process.env));
-console.log("FIREBASE_SERVICE_ACCOUNT:", process.env.FIREBASE_SERVICE_ACCOUNT);
+console.log("🚀 Iniciando servidor...");
 
 const express = require("express");
 const axios = require("axios");
@@ -9,14 +8,21 @@ const cron = require("node-cron");
 
 const app = express();
 
+// ==============================
+// CORS
+// ==============================
+
 app.use(cors({
   origin: "*",
   methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  allowedHeaders: ["Content-Type"]
 }));
 
-app.options("*", cors());
 app.use(express.json());
+
+// ==============================
+// VARIABLES WHATSAPP
+// ==============================
 
 const TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
@@ -26,11 +32,22 @@ const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 // ==============================
 
 if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
-  console.error("❌ FIREBASE_SERVICE_ACCOUNT no está configurado");
+  console.error("❌ FIREBASE_SERVICE_ACCOUNT no configurado");
   process.exit(1);
 }
 
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+let serviceAccount;
+
+try {
+
+  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+
+} catch (error) {
+
+  console.error("❌ Error leyendo FIREBASE_SERVICE_ACCOUNT:", error);
+  process.exit(1);
+
+}
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
@@ -39,6 +56,14 @@ admin.initializeApp({
 const db = admin.firestore();
 
 console.log("🔥 Firebase conectado");
+
+// ==============================
+// ENDPOINT TEST
+// ==============================
+
+app.get("/", (req, res) => {
+  res.send("Servidor WhatsApp funcionando 🚀");
+});
 
 // ==============================
 // FUNCIÓN WHATSAPP
@@ -58,7 +83,7 @@ async function enviarWhatsApp(telefono, mensaje) {
       return;
     }
 
-    let numero = telefono.toString().replace(/\D/g, "");
+    const numero = telefono.toString().replace(/\D/g, "");
 
     console.log("📨 Enviando WhatsApp a:", numero);
 
@@ -90,6 +115,7 @@ async function enviarWhatsApp(telefono, mensaje) {
     );
 
   }
+
 }
 
 // ==============================
@@ -100,7 +126,7 @@ app.post("/enviar", async (req, res) => {
 
   const { telefono, mensaje } = req.body;
 
-  console.log("📩 Petición recibida desde frontend");
+  console.log("📩 Petición recibida");
   console.log("Telefono:", telefono);
   console.log("Mensaje:", mensaje);
 
@@ -156,7 +182,7 @@ async function revisarTurnos() {
 
       if (minutos >= 2 && !turno.recordatorio24h) {
 
-        console.log("📩 Enviando recordatorio prueba:", turno.cliente);
+        console.log("📩 Enviando recordatorio:", turno.cliente);
 
         const mensaje = `Hola ${turno.cliente} 😊
 Recordatorio de tu turno en Beauty Eyes.
@@ -185,15 +211,19 @@ Te esperamos 💗`;
 }
 
 // ==============================
-// CRON
+// CRON (cada 1 minuto)
 // ==============================
 
 cron.schedule("*/1 * * * *", async () => {
 
   try {
+
     await revisarTurnos();
-  } catch (e) {
-    console.error("Error en cron:", e);
+
+  } catch (error) {
+
+    console.error("Error en cron:", error);
+
   }
 
 });

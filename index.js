@@ -9,7 +9,13 @@ const cron = require("node-cron");
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+app.options("*", cors());
 app.use(express.json());
 
 const TOKEN = process.env.WHATSAPP_TOKEN;

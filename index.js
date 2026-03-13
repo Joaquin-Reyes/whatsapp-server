@@ -38,7 +38,7 @@ console.log("🔥 Firebase conectado");
 // FUNCIÓN WHATSAPP
 // ==============================
 
-async function enviarWhatsApp(telefono) {
+async function enviarWhatsApp(telefono, mensaje) {
 
   if (!TOKEN || !PHONE_NUMBER_ID) {
     console.error("❌ Falta WHATSAPP_TOKEN o PHONE_NUMBER_ID");
@@ -61,12 +61,9 @@ async function enviarWhatsApp(telefono) {
       {
         messaging_product: "whatsapp",
         to: numero,
-        type: "template",
-        template: {
-          name: "hello_world",
-          language: {
-            code: "en_US"
-          }
+        type: "text",
+        text: {
+          body: mensaje
         }
       },
       {
@@ -90,16 +87,20 @@ async function enviarWhatsApp(telefono) {
 }
 
 // ==============================
-// ENDPOINT MANUAL
+// ENDPOINT PARA FRONTEND
 // ==============================
 
 app.post("/enviar", async (req, res) => {
 
-  const { telefono } = req.body;
+  const { telefono, mensaje } = req.body;
+
+  console.log("📩 Petición recibida desde frontend");
+  console.log("Telefono:", telefono);
+  console.log("Mensaje:", mensaje);
 
   try {
 
-    await enviarWhatsApp(telefono);
+    await enviarWhatsApp(telefono, mensaje);
 
     res.send("Mensaje enviado");
 
@@ -127,9 +128,9 @@ async function revisarTurnos() {
 
     const snapshot = await db.collection("turnos").get();
 
-    for (const doc of snapshot.docs) {
+    for (const docItem of snapshot.docs) {
 
-      const turno = doc.data();
+      const turno = docItem.data();
 
       if (!turno.telefono || !turno.cliente || !turno.createdAt) {
         continue;
@@ -151,9 +152,17 @@ async function revisarTurnos() {
 
         console.log("📩 Enviando recordatorio prueba:", turno.cliente);
 
-        await enviarWhatsApp(turno.telefono);
+        const mensaje = `Hola ${turno.cliente} 😊
+Recordatorio de tu turno en Beauty Eyes.
 
-        await doc.ref.update({
+📅 Fecha: ${turno.fecha}
+⏰ Hora: ${turno.hora}
+
+Te esperamos 💗`;
+
+        await enviarWhatsApp(turno.telefono, mensaje);
+
+        await docItem.ref.update({
           recordatorio24h: true
         });
 

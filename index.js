@@ -61,7 +61,7 @@ console.log("🔥 Firebase conectado");
 // ESCUCHAR TURNOS NUEVOS
 // ==============================
 
-db.collection("turnos").onSnapshot((snapshot) => {
+db.collection("turnos").onSnapshot(async (snapshot) => {
 
   for (const change of snapshot.docChanges()) {
 

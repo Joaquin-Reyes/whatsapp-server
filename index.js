@@ -71,7 +71,21 @@ db.collection("turnos").onSnapshot(async (snapshot) => {
 
       console.log("📦 Turno detectado:", turno);
 
-      if (!turno.telefono || turno.whatsappEnviado) return;
+      // evitar procesar turnos viejos cuando arranca el servidor
+if (!turno.createdAt) {
+  continue;
+}
+
+const ahora = Date.now();
+const creado = turno.createdAt.seconds * 1000;
+
+if (ahora - creado > 60000) {
+  continue;
+}
+
+      if (!turno.telefono || turno.whatsappEnviado) {
+  continue;
+}
 
       const mensaje = `Hola ${turno.cliente} 😊
 Tu turno fue confirmado.
@@ -148,7 +162,7 @@ if (!numero.startsWith("549")) {
     console.log("📨 Enviando WhatsApp a:", numero);
 
     const response = await axios.post(
-      `https://graph.facebook.com/v22.0/${PHONE_NUMBER_ID}/messages`,
+      `https://graph.facebook.com/v25.0/${PHONE_NUMBER_ID}/messages`,
       {
         messaging_product: "whatsapp",
         to: numero,

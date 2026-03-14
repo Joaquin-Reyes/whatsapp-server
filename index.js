@@ -2,7 +2,6 @@ const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
 const admin = require("firebase-admin");
-const cron = require("node-cron");
 
 const app = express();
 
@@ -64,11 +63,13 @@ console.log("🔥 Firebase conectado");
 
 db.collection("turnos").onSnapshot((snapshot) => {
 
-  snapshot.docChanges().forEach(async (change) => {
+  for (const change of snapshot.docChanges()) {
 
     if (change.type === "added") {
 
       const turno = change.doc.data();
+
+      console.log("📦 Turno detectado:", turno);
 
       if (!turno.telefono || turno.whatsappEnviado) return;
 
@@ -93,13 +94,13 @@ Te esperamos 💗`;
 
       } catch (error) {
 
-        console.error("Error enviando WhatsApp automático", error);
+        console.error("❌ Error enviando WhatsApp automático", error);
 
       }
 
     }
 
-  });
+  }
 
 });
 
@@ -162,10 +163,11 @@ async function enviarWhatsApp(telefono, mensaje) {
 
     throw error;
   }
+
 }
 
 // ==============================
-// ENDPOINT PARA FRONTEND
+// ENDPOINT PARA TEST MANUAL
 // ==============================
 
 app.post("/enviar", async (req, res) => {
@@ -197,83 +199,6 @@ app.post("/enviar", async (req, res) => {
   }
 
 });
-
-// ==============================
-// SISTEMA DE RECORDATORIOS
-// (DESACTIVADO TEMPORALMENTE)
-// ==============================
-
-async function revisarTurnos() {
-
-  console.log("⏰ Revisando turnos...");
-
-  const ahora = new Date();
-  const ahoraMs = ahora.getTime();
-
-  try {
-
-    const snapshot = await db.collection("turnos").get();
-
-    for (const docItem of snapshot.docs) {
-
-      const turno = docItem.data();
-
-      if (!turno.telefono || !turno.cliente || !turno.createdAt) {
-        continue;
-      }
-
-      const createdAt = turno.createdAt.toDate
-        ? turno.createdAt.toDate()
-        : new Date(turno.createdAt);
-
-      const turnoMs = createdAt.getTime();
-
-      const diff = ahoraMs - turnoMs;
-      const minutos = diff / (1000 * 60);
-
-      console.log("Turno:", turno.cliente);
-      console.log("Minutos desde creación:", minutos);
-
-      if (minutos >= 2 && !turno.recordatorio24h) {
-
-        console.log("📩 Enviando recordatorio:", turno.cliente);
-
-        const mensaje = `Hola ${turno.cliente} 😊
-Recordatorio de tu turno en Beauty Eyes.
-
-📅 Fecha: ${turno.fecha}
-⏰ Hora: ${turno.hora}
-
-Te esperamos 💗`;
-
-        await enviarWhatsApp(turno.telefono, mensaje);
-
-        await docItem.ref.update({
-          recordatorio24h: true
-        });
-
-      }
-
-    }
-
-  } catch (error) {
-
-    console.error("❌ Error revisando turnos:", error);
-
-  }
-}
-
-// ==============================
-// CRON DESACTIVADO
-// ==============================
-
-// cron.schedule("*/1 * * * *", async () => {
-//   try {
-//     await revisarTurnos();
-//   } catch (error) {
-//     console.error("Error en cron:", error);
-//   }
-// });
 
 // ==============================
 // SERVER

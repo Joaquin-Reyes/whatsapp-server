@@ -130,7 +130,20 @@ async function enviarWhatsApp(telefono, mensaje) {
       return;
     }
 
-    const numero = telefono.toString().replace(/\D/g, "");
+    let numero = telefono.toString().replace(/\D/g, "");
+
+// asegurar formato argentino para WhatsApp
+if (!numero.startsWith("549")) {
+
+  if (numero.startsWith("11")) {
+    numero = "549" + numero;
+  }
+
+  if (numero.startsWith("15")) {
+    numero = "54911" + numero.slice(2);
+  }
+
+}
 
     console.log("📨 Enviando WhatsApp a:", numero);
 

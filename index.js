@@ -59,6 +59,51 @@ const db = admin.firestore();
 console.log("🔥 Firebase conectado");
 
 // ==============================
+// ESCUCHAR TURNOS NUEVOS
+// ==============================
+
+db.collection("turnos").onSnapshot((snapshot) => {
+
+  snapshot.docChanges().forEach(async (change) => {
+
+    if (change.type === "added") {
+
+      const turno = change.doc.data();
+
+      if (!turno.telefono || turno.whatsappEnviado) return;
+
+      const mensaje = `Hola ${turno.cliente} 😊
+Tu turno fue confirmado.
+
+📅 Fecha: ${turno.fecha}
+⏰ Hora: ${turno.hora}
+💅 Servicio: ${turno.servicio}
+
+Te esperamos 💗`;
+
+      try {
+
+        await enviarWhatsApp(turno.telefono, mensaje);
+
+        await change.doc.ref.update({
+          whatsappEnviado: true
+        });
+
+        console.log("📩 WhatsApp automático enviado");
+
+      } catch (error) {
+
+        console.error("Error enviando WhatsApp automático", error);
+
+      }
+
+    }
+
+  });
+
+});
+
+// ==============================
 // ENDPOINT TEST
 // ==============================
 

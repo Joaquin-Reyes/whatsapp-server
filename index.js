@@ -166,11 +166,14 @@ if (!numero.startsWith("549")) {
       {
         messaging_product: "whatsapp",
         to: numero,
-        type: "text",
-        text: {
-          body: mensaje
-        }
-      },
+       type: "template",
+    template: {
+      name: "hello_world",
+      language: {
+        code: "en_US"
+      }
+    }
+  },
       {
         headers: {
           Authorization: `Bearer ${TOKEN}`,

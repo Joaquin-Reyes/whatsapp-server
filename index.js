@@ -31,6 +31,9 @@ app.use(express.json());
 const TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 
+console.log("🔑 TOKEN cargado:", TOKEN ? "SI" : "NO");
+console.log("📱 PHONE_NUMBER_ID:", PHONE_NUMBER_ID);
+
 // ==============================
 // FIREBASE ADMIN
 // ==============================
@@ -71,23 +74,22 @@ db.collection("turnos").onSnapshot(async (snapshot) => {
 
       console.log("📦 Turno detectado:", turno);
 
-      // evitar procesar turnos viejos cuando arranca el servidor
-if (!turno.createdAt) {
-  continue;
-}
+      if (!turno.createdAt) {
+        continue;
+      }
 
-const ahora = Date.now();
-const creado = turno.createdAt.seconds * 1000;
+      const ahora = Date.now();
+      const creado = turno.createdAt.seconds * 1000;
 
-if (ahora - creado > 60000) {
-  continue;
-}
+      if (ahora - creado > 60000) {
+        continue;
+      }
 
       if (!turno.telefono || turno.whatsappEnviado) {
-  continue;
-}
+        continue;
+      }
 
-      const mensaje = `Hola ${turno.cliente} 😊
+      const mensaje = `Hola ${turno.cliente || ""} 😊
 Tu turno fue confirmado.
 
 📅 Fecha: ${turno.fecha}
@@ -146,18 +148,18 @@ async function enviarWhatsApp(telefono, mensaje) {
 
     let numero = telefono.toString().replace(/\D/g, "");
 
-// asegurar formato argentino para WhatsApp
-if (!numero.startsWith("549")) {
+    // formato argentino WhatsApp
+    if (!numero.startsWith("549")) {
 
-  if (numero.startsWith("11")) {
-    numero = "549" + numero;
-  }
+      if (numero.startsWith("11")) {
+        numero = "549" + numero;
+      }
 
-  if (numero.startsWith("15")) {
-    numero = "54911" + numero.slice(2);
-  }
+      if (numero.startsWith("15")) {
+        numero = "54911" + numero.slice(2);
+      }
 
-}
+    }
 
     console.log("📨 Enviando WhatsApp a:", numero);
 
@@ -166,14 +168,11 @@ if (!numero.startsWith("549")) {
       {
         messaging_product: "whatsapp",
         to: numero,
-       type: "template",
-    template: {
-      name: "hello_world",
-      language: {
-        code: "en_US"
-      }
-    }
-  },
+        type: "text",
+        text: {
+          body: mensaje
+        }
+      },
       {
         headers: {
           Authorization: `Bearer ${TOKEN}`,

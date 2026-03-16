@@ -28,10 +28,10 @@ app.use(express.json());
 // VARIABLES WHATSAPP
 // ==============================
 
-const TOKEN = process.env.WHATSAPP_TOKEN;
-const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
+const TOKEN = "EAAhJTuhZBjOQBQ2Rdq93IasZASwyWZBh1yy1O1ZAXtmBwBUlAfa1eX7o1YvmUcZCaZB97UpHUNPlAPSC0e8jYUqMfZA3Kd7ZAQRZAjxlN33jpBe6oCPKcclc7FKf8kz5LABL4HLp91lgKeXZAINJuhouMddPklkVSEVth6YJ9UTZAzvSZB7W4DTLcdd02HB2CiaQjheP68ZAmq6rmh7RW6tpZATgegM6ZAMOTCoheeJrP08fn9wZBvYqxjvZASNNY02MC5ZCIhVGdzuWc7x3FkxrEa8pVrREB1rwZDZD";
+const PHONE_NUMBER_ID = "996052293598272";
 
-console.log("🔑 TOKEN cargado:", TOKEN ? "SI" : "NO");
+console.log("🔑 TOKEN manual cargado");
 console.log("📱 PHONE_NUMBER_ID:", PHONE_NUMBER_ID);
 
 // ==============================

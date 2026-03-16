@@ -168,12 +168,9 @@ async function enviarWhatsApp(telefono, mensaje) {
   {
     messaging_product: "whatsapp",
     to: numero,
-    type: "template",
-    template: {
-      name: "hello_world",
-      language: {
-        code: "en_US"
-      }
+    type: "text",
+    text: {
+      body: mensaje
     }
   },
   {

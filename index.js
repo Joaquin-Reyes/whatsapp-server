@@ -164,22 +164,25 @@ async function enviarWhatsApp(telefono, mensaje) {
     console.log("📨 Enviando WhatsApp a:", numero);
 
     const response = await axios.post(
-      `https://graph.facebook.com/v25.0/${PHONE_NUMBER_ID}/messages`,
-      {
-        messaging_product: "whatsapp",
-        to: numero,
-        type: "text",
-        text: {
-          body: mensaje
-        }
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${TOKEN}`,
-          "Content-Type": "application/json"
-        }
+  `https://graph.facebook.com/v25.0/${PHONE_NUMBER_ID}/messages`,
+  {
+    messaging_product: "whatsapp",
+    to: numero,
+    type: "template",
+    template: {
+      name: "hello_world",
+      language: {
+        code: "en_US"
       }
-    );
+    }
+  },
+  {
+    headers: {
+      Authorization: `Bearer ${TOKEN}`,
+      "Content-Type": "application/json"
+    }
+  }
+);
 
     console.log("✅ Mensaje enviado:", response.data);
 

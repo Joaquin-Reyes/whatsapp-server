@@ -78,13 +78,6 @@ db.collection("turnos").onSnapshot(async (snapshot) => {
         continue;
       }
 
-      const ahora = Date.now();
-      const creado = turno.createdAt.seconds * 1000;
-
-      if (ahora - creado > 60000) {
-        continue;
-      }
-
       if (!turno.telefono || turno.whatsappEnviado) {
         continue;
       }

@@ -28,7 +28,7 @@ app.use(express.json());
 // VARIABLES WHATSAPP
 // ==============================
 
-const TOKEN = "EAAhJTuhZBjOQBQ2Rdq93IasZASwyWZBh1yy1O1ZAXtmBwBUlAfa1eX7o1YvmUcZCaZB97UpHUNPlAPSC0e8jYUqMfZA3Kd7ZAQRZAjxlN33jpBe6oCPKcclc7FKf8kz5LABL4HLp91lgKeXZAINJuhouMddPklkVSEVth6YJ9UTZAzvSZB7W4DTLcdd02HB2CiaQjheP68ZAmq6rmh7RW6tpZATgegM6ZAMOTCoheeJrP08fn9wZBvYqxjvZASNNY02MC5ZCIhVGdzuWc7x3FkxrEa8pVrREB1rwZDZD";
+const TOKEN = "EAAhJTuhZBjOQBQz0iVynWNvnzAUzypJaidDUaWvZBwfCcrYuNDNnaBNiAp6YoU8lMA1IrFYv95sgDB5MYQ9hhHPXpNfexn5xFViqX1L3ToJn3gqcN1k0owR4PCZCUNidbNLB7146S0cl2JJizG1xkA6A2P71trZAH863wCqGELS0S0qZADqP3pujuCMmOQK19PkmZCUIeXU8DtxA1DIPXMQtS39O5Dod7eDrRqULpi8R6Kf3ZAggeA7uc03nTbWvLChuAy15ZAdpIbrroRqEfZCyx";
 const PHONE_NUMBER_ID = "996052293598272";
 
 console.log("🔑 TOKEN manual cargado");
@@ -168,9 +168,12 @@ async function enviarWhatsApp(telefono, mensaje) {
   {
     messaging_product: "whatsapp",
     to: numero,
-    type: "text",
-    text: {
-      body: mensaje
+    type: "template",
+    template: {
+      name: "hello_world",
+      language: {
+        code: "en_US"
+      }
     }
   },
   {
@@ -180,7 +183,6 @@ async function enviarWhatsApp(telefono, mensaje) {
     }
   }
 );
-
     console.log("✅ Mensaje enviado:", response.data);
 
   } catch (error) {
